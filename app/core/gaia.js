@@ -80,6 +80,8 @@ var Gaia = {
     // signature: func(status int, responseText string)
     post: function(url, params, data, callback) {
         Logger.debug("Gaia.post");
+        Logger.info(ConfigStore.getPublicCredential());
+        Logger.info(ConfigStore.getPrivateCredential());
 
         var xhr = new XMLHttpRequest();
 

@@ -4,6 +4,7 @@
  */
 'use strict';
 
+// --- React Native {{{
 import React, {
   AppRegistry,
   Component,
@@ -14,42 +15,39 @@ import React, {
 
 import Root from './app/components/root';
 
-class Arke extends Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.ios.js
-        </Text>
-        <Text style={styles.instructions}>
-          Press Cmd+R to reload,{'\n'}
-          Cmd+D or shake for dev menu
-        </Text>
-      </View>
-    );
-  }
-}
+AppRegistry.registerComponent('Arke', () => Root);
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+// --- }}}
+
+// --- Flux {{{
+
+var Constants = require("./app/constants/app-constants");
+var Dispatcher = require("./app/dispatcher/app-dispatcher");
+
+Dispatcher.dispatch({
+    actionType: Constants.APP_INITITIALIZED,
 });
 
-AppRegistry.registerComponent('Arke', () => Root);
+// --- }}}
+
+// --- DB Changes {{{
+var DB = require("./app/core/db");
+var RecordActions = require("./app/actions/record-actions");
+
+DB.changes({
+    error: function () {
+        console.log("yikes");
+    },
+
+    resolve: function (recordChange) {
+        switch (recordChange.change_kind) {
+            case DB.ChangeKind.Update:
+                RecordActions.update(recordChange.record_kind, recordChange.record);
+                break
+            case DB.ChangeKind.Delete:
+                RecordActions.delete(recordChange.record_kind, recordChange.record);
+                break;
+        }
+    }
+});
+// --- }}}
